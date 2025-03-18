@@ -1,48 +1,28 @@
 from ..methods import Methods
 
-class Client(object):
-
-    def __init__(
-        self,
-        session:str=None,
-        auth:str=None,
-        private:str=None,
-        platform:str="web",
-        api_version:int=6,
-        proxy:str=None,
-        time_out:int=10,
-        show_progress_bar:bool=True
-    ) -> None:
-        
+class Client(Methods):  # ارث‌بری از کلاس Methods
+    def __init__(self, session: str = None, auth: str = None, private: str = None,
+                 platform: str = "web", api_version: int = 6, proxy: str = None,
+                 time_out: int = 10, show_progress_bar: bool = True) -> None:
         self.session = session
         self.platform = platform
         self.apiVersion = api_version
         self.proxy = proxy
         self.timeOut = time_out
-        
-        if(session):
+
+        if session:
             from ..sessions import Sessions
             self.sessions = Sessions(self)
-
-            if(self.sessions.cheackSessionExists()):
+            if self.sessions.checkSessionExists():
                 self.sessionData = self.sessions.loadSessionData()
             else:
                 self.sessionData = self.sessions.createSession()
         else:
             from ..utils import Utils
-            self.sessionData = {
-                "auth": auth,
-                "private_key": Utils.privateParse(private=private)
-            }
+            self.sessionData = {"auth": auth, "private_key": Utils.privateParse(private=private)}
 
-        self.methods = Methods(
-            sessionData=self.sessionData,
-            platform=platform,
-            apiVersion=api_version,
-            proxy=proxy,
-            timeOut=time_out,
-            showProgressBar=show_progress_bar
-        )
+        # فراخوانی سازنده کلاس Methods
+        super().__init__(sessionData=self.sessionData, platform=platform, apiVersion=api_version, proxy=proxy, timeOut=time_out, showProgressBar=show_progress_bar)
 
     # Authentication methods
     
