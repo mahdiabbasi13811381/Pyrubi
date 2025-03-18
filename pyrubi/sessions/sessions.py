@@ -6,7 +6,7 @@ class Sessions:
     def __init__(self, client:object) -> None:
         self.client = client
 
-    def cheackSessionExists(self):
+    def checkSessionExists(self):
         return exists(f"{self.client.session}.pyrubi")
     
     def loadSessionData(self):
