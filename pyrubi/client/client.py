@@ -246,6 +246,23 @@ class Client(Methods):  # ارث‌بری از کلاس Methods
     
     def send_text(self, object_guid:str, text:str, message_id:str=None) -> dict:
         return self.methods.sendText(objectGuid=object_guid, text=text, messageId=message_id)
+
+    def resendMessage(self, objectGuid: str, messageId: str, toObjectGuid: str, replyToMessageId: str = None, text: str = None, fileInline: dict = None) -> dict:
+        messageData = {} if fileInline else self.getMessagesById(objectGuid, [messageId])
+        text, metadata = text or messageData["messages"][0].get("text", ""), Utils.checkMetadata(text)
+        input_data = {"is_mute": False, "object_guid": toObjectGuid, "rnd": Utils.randomRnd(), "reply_to_message_id": replyToMessageId, "text": metadata[1]}
+        fileInline = fileInline or messageData["messages"][0].get("file_inline")
+        if fileInline: input_data["file_inline"] = fileInline
+        if not fileInline:
+            if location := messageData["messages"][0].get("location"): input_data["location"], del input_data["location"]["map_view"], del input_data["text"]
+            if contact := messageData["messages"][0].get("message_contact"): input_data["message_contact"], del input_data["text"]
+            if sticker := messageData["messages"][0].get("sticker"): input_data["sticker"], del input_data["text"]
+            if meta := messageData["messages"][0].get("metadata"): input_data["metadata"] = {"meta_data_parts": meta}
+        elif metadata[0]: input_data["metadata"] = {"meta_data_parts": metadata[0]}
+        return self.network.request(method="sendMessage", input=input_data)
+
+    def forward_messages(self, object_guid: str, message_ids: list, to_object_guid: str) -> dict:
+        return self.methods.forwardMessages(objectGuid=object_guid, messageIds=message_ids, toObjectGuid=to_object_guid)
     
     def send_file(self, object_guid:str, file:str, message_id:str=None, text:str=None, file_name:str=None) -> dict:
         return self.methods.sendFile(objectGuid=object_guid, file=file, text=text, messageId=message_id, fileName=file_name)
