@@ -38,7 +38,7 @@ class Client:
 
     def _setup_connection(self):
         """تنظیمات اولیه اتصال"""
-        self._session = aiohttp.ClientSession(
+        self._session = aiohttp.ClientSession()
             timeout=aiohttp.ClientTimeout(total=30)
         self._is_connected = True
 
