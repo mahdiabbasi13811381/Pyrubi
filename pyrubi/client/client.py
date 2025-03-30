@@ -254,9 +254,19 @@ class Client(Methods):  # ارث‌بری از کلاس Methods
         fileInline = fileInline or messageData["messages"][0].get("file_inline")
         if fileInline: input_data["file_inline"] = fileInline
         if not fileInline:
-            if location := messageData["messages"][0].get("location"): input_data["location"], del input_data["location"]["map_view"], del input_data["text"]
-            if contact := messageData["messages"][0].get("message_contact"): input_data["message_contact"], del input_data["text"]
-            if sticker := messageData["messages"][0].get("sticker"): input_data["sticker"], del input_data["text"]
+            location = messageData["messages"][0].get("location")
+            if location:
+                input_data["location"] = location
+                del input_data["location"]["map_view"]
+                del input_data["text"]
+            contact = messageData["messages"][0].get("message_contact")
+            if contact:
+                input_data["message_contact"] = contact
+                del input_data["text"]
+            sticker = messageData["messages"][0].get("sticker")
+            if sticker:
+                input_data["sticker"] = sticker
+                del input_data["text"]
             if meta := messageData["messages"][0].get("metadata"): input_data["metadata"] = {"meta_data_parts": meta}
         elif metadata[0]: input_data["metadata"] = {"meta_data_parts": metadata[0]}
         return self.network.request(method="sendMessage", input=input_data)
