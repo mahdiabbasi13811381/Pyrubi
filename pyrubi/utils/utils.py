@@ -179,7 +179,7 @@ class Utils:
     
     def getVideoData(bytes:bytes) -> list:
         try:
-            from moviepy.editor import VideoFileClip
+            from moviepy import VideoFileClip
 
             with NamedTemporaryFile(delete=False, dir=".") as temp_video:
                 temp_video.write(bytes)
@@ -193,15 +193,17 @@ class Utils:
                 system("pip install pillow")
                 from PIL import Image
 
-            with VideoFileClip(temp_path) as clip:
-                duration = clip.duration
-                resolution = clip.size
-                thumbnail = clip.get_frame(0)
-                thumbnail_image = Image.fromarray(thumbnail)
-                thumbnail_buffer = BytesIO()
-                thumbnail_image.save(thumbnail_buffer, format="JPEG")
-                thumbnail_b64 = b64encode(thumbnail_buffer.getvalue()).decode("UTF-8")
-                clip.close()
+            clip = VideoFileClip(temp_path)
+            duration = clip.duration
+            resolution = clip.size
+            
+            thumbnail = clip.get_frame_at_time(0)
+            thumbnail_image = Image.fromarray(thumbnail)
+            thumbnail_buffer = BytesIO()
+            thumbnail_image.save(thumbnail_buffer, format="JPEG")
+            thumbnail_b64 = b64encode(thumbnail_buffer.getvalue()).decode("UTF-8")
+            
+            clip.close()
 
             remove(temp_path)
 
@@ -209,9 +211,9 @@ class Utils:
         except ImportError:
             print(Colors.YELLOW + "Can't get video data! Please install the moviepy library by following command:\npip install moviepy" + Colors.RESET)
             return Configs.defaultTumbInline, [900, 720], 1
-        except:
-            return Configs.defaultTumbInline, [900, 720], 1
-        
+        except Exception as e:
+            print(f"Error in getVideoData: {e}")
+            return Configs.defaultTumbInline, [900, 720], 1    
     def getVoiceDuration(bytes:bytes) -> int:
         file = BytesIO()
         file.write(bytes)
